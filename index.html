@@ -9,8 +9,73 @@
     <script src="TemplateData/UnityProgress.js"></script>
     <script src="Build/UnityLoader.js"></script>
     <script>
-      var gameInstance = UnityLoader.instantiate("gameContainer", "Build/WebGL.json", {onProgress: UnityProgress});
-    </script>
+      function mergeFiles(fileParts) {
+          return new Promise((resolve, reject) => {
+              let buffers = [];
+
+              function fetchPart(index) {
+                  if (index >= fileParts.length) {
+                      let mergedBlob = new Blob(buffers);
+                      let mergedFileUrl = URL.createObjectURL(mergedBlob);
+                      resolve(mergedFileUrl);
+                      return;
+                  }
+                  fetch(fileParts[index]).then((response) => response.arrayBuffer()).then((data) => {
+                      buffers.push(data);
+                      fetchPart(index + 1);
+                  }).catch(reject);
+              }
+              fetchPart(0);
+          });
+      }
+
+      function getParts(file, start, end) {
+          let parts = [];
+          for (let i = start; i <= end; i++) {
+              parts.push(file + ".part" + i);
+          }
+          return parts;
+      }
+
+      function resizeUnityContainer() {
+          var container = document.getElementById("unityContainer");
+          container.style.width = window.innerWidth + "px";
+          container.style.height = window.innerHeight + "px";
+      }
+      Promise.all([
+          mergeFiles(getParts("Build/WebGL.data.unityweb", 1, 3))
+      ]).then(([dataUrl]) => {
+          window.dataUrll = dataUrl;
+          var json = {
+              "companyName": "Squid Squad Games",
+              "productName": "Tanuki Sunset",
+              "dataUrl": "WebGL.data.unityweb",
+              "wasmCodeUrl": "WebGL.wasm.code.unityweb",
+              "wasmFrameworkUrl": "WebGL.wasm.framework.unityweb",
+              "TOTAL_MEMORY": 268435456,
+              "graphicsAPI": ["WebGL 2.0", "WebGL 1.0"],
+              "webglContextAttributes": {"preserveDrawingBuffer": false},
+              "splashScreenStyle": "Dark",
+              "backgroundColor": "#231F20",
+              "cacheControl": {"default": "must-revalidate"}
+          };
+          let blob = new Blob([JSON.stringify(json)], {
+              type: 'application/json'
+          });
+          let blobUrl = URL.createObjectURL(blob);
+          window.addEventListener('resize', resizeUnityContainer);
+          UnityLoader.instantiate("unityContainer", json, {
+              onProgress: UnityProgress,
+              url: blobUrl,
+              Module: {
+                  onRuntimeInitialized: function () {
+                      resizeUnityContainer();
+                      document.querySelector("#loading-text").remove();
+                  }
+              }
+          });
+      });
+  </script>
   </head>
   <body>
     <div class="webgl-content">
