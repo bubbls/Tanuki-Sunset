@@ -1,4 +1,4 @@
-window.unityMainBuildUrl = "https://cdn.jsdelivr.net/gh/bubbls/Tanuki-Sunset@fc6399816213b1561b0807fbb0b3820fdbdbc2cf/Build/"
+window.unityMainBuildUrl = "https://cdn.jsdelivr.net/gh/bubbls/Tanuki-Sunset@54593ffd2ff9f4b36edddb0331e2b6fd9cf236d0/Build/"
 
 var UnityLoader = UnityLoader || {
     Compression: {
