@@ -37,8 +37,8 @@
           return parts;
       }
 
-      function resizeUnityContainer() {
-          var container = document.getElementById("unityContainer");
+      function resizegameContainer() {
+          var container = document.getElementById("gameContainer");
           container.style.width = window.innerWidth + "px";
           container.style.height = window.innerHeight + "px";
       }
@@ -63,13 +63,13 @@
               type: 'application/json'
           });
           let blobUrl = URL.createObjectURL(blob);
-          window.addEventListener('resize', resizeUnityContainer);
-          UnityLoader.instantiate("unityContainer", json, {
+          window.addEventListener('resize', resizegameContainer);
+          UnityLoader.instantiate("gameContainer", json, {
               onProgress: UnityProgress,
               url: blobUrl,
               Module: {
                   onRuntimeInitialized: function () {
-                      resizeUnityContainer();
+                      resizegameContainer();
                       document.querySelector("#loading-text").remove();
                   }
               }
